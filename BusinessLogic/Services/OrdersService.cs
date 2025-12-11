@@ -18,34 +18,86 @@ namespace BusinessLogic.Services
             _ordersRepository = ordersRepository;
         }
 
-        public Task<List<OrderResponse>> GetOrders()
+        public async Task<List<OrderResponse>> GetOrders()
         {
-            throw new NotImplementedException();
+            IEnumerable<Order> orders = (await _ordersRepository.GetOrders());
+            List<OrderResponse> ordersResponse = orders.Select(o => _mapper.Map<OrderResponse>(o)).ToList();
+
+            return ordersResponse;
         }
 
-        public Task<OrderResponse?> GetOrderByCondition(FilterDefinition<Order> filter)
+        public async Task<OrderResponse?> GetOrderByCondition(FilterDefinition<Order> filter)
         {
-            throw new NotImplementedException();
+            Order? order = await _ordersRepository.GetOrderByCondition(filter);
+
+            if (order is null)
+            {
+                return null;
+            }
+
+            return _mapper.Map<OrderResponse>(order);
         }
 
-        public Task<List<OrderResponse>> GetOrdersByCondition(FilterDefinition<Order> filter)
+        public async Task<List<OrderResponse>> GetOrdersByCondition(FilterDefinition<Order> filter)
         {
-            throw new NotImplementedException();
+            List<Order> orders = await _ordersRepository.GetOrdersByCondition(filter);
+
+            return orders.Select(order => _mapper.Map<OrderResponse>(order)).ToList();
         }
 
-        public Task<OrderResponse?> AddOrder(OrderAddRequest orderAddRequest)
+        public async Task<OrderResponse?> AddOrder(OrderAddRequest orderAddRequest)
         {
-            throw new NotImplementedException();
+            // TODO connect to User via UsersService
+
+            Order orderInput = _mapper.Map<Order>(orderAddRequest);
+
+            foreach (OrderItem orderItem in orderInput.Items)
+            {
+                orderItem.TotalPrice = orderItem.Quantity * orderItem.UnitPrice;
+            }
+            orderInput.TotalBill = orderInput.Items.Sum(temp => temp.TotalPrice);
+
+            Order? addedOrder = await _ordersRepository.CreateOrder(orderInput);
+
+            if (addedOrder == null)
+            {
+                return null;
+            }
+
+            OrderResponse addedOrderResponse = _mapper.Map<OrderResponse>(addedOrder);
+
+            return addedOrderResponse;
         }
 
-        public Task<OrderResponse?> UpdateOrder(OrderUpdateRequest orderUpdateRequest)
+        public async Task<OrderResponse?> UpdateOrder(OrderUpdateRequest orderUpdateRequest)
         {
-            throw new NotImplementedException();
+            // TODO connect to User via UsersService
+
+            Order orderInput = _mapper.Map<Order>(orderUpdateRequest);
+
+            foreach (OrderItem orderItem in orderInput.Items)
+            {
+                orderItem.TotalPrice = orderItem.Quantity * orderItem.UnitPrice;
+            }
+            orderInput.TotalBill = orderInput.Items.Sum(temp => temp.TotalPrice);
+
+            Order? updatedOrder = await _ordersRepository.UpdateOrder(orderInput);
+
+            if (updatedOrder == null)
+            {
+                return null;
+            }
+
+            OrderResponse addedOrderResponse = _mapper.Map<OrderResponse>(updatedOrder);
+
+            return addedOrderResponse;
         }
 
-        public Task<bool> DeleteOrder(Guid orderId)
+        public async Task<bool> DeleteOrder(Guid orderId)
         {
-            throw new NotImplementedException();
+            bool success = await _ordersRepository.DeleteOrder(orderId);
+
+            return success;
         }
     }
 }

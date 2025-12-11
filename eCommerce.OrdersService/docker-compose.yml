@@ -1,0 +1,22 @@
+﻿services:
+    mongodb-container:
+        image: mongo:latest
+        ports:
+            - "27017:27017"
+        volumes:
+            - ./DatabaseInit:/docker-entrypoint-initdb.d
+        networks:
+            - orders-network
+    orders-microservice:
+        image: orders-microservice:1.0
+        environment:
+            MONGODB_HOST: mongodb-container
+            MONGODB_PORT: 27017
+        networks:
+            - orders-network
+        ports:
+            - "5186:8080"
+
+networks:
+    orders-network:
+        driver: bridge

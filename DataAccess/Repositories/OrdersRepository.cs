@@ -25,10 +25,20 @@ namespace DataAccess.Repositories
             return (await _orders.FindAsync(filter)).FirstOrDefault();
         }
 
+        public async Task<List<Order>> GetOrdersByCondition(FilterDefinition<Order> filter)
+        {
+            return await (await _orders.FindAsync(filter)).ToListAsync();
+        }
 
         public async Task<Order?> CreateOrder(Order order)
         {
             order.OrderId = Guid.NewGuid();
+            order._id = order.OrderId;
+
+            foreach (OrderItem orderItem in order.Items) {
+                orderItem._id = Guid.NewGuid();
+            }
+
             await _orders.InsertOneAsync(order);
 
             return order;
