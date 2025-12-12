@@ -1,8 +1,8 @@
 ﻿namespace BusinessLogic.DTO
 {
-    public record OrderAddRequest (Guid UserId, DateTime OrderDate, List<OrderItemAddRequest> Items)
+    public record OrderAddRequest (Guid UserId, List<OrderItemAddRequest> Items)
     {
-        public OrderAddRequest() : this(default, default, default) {
+        public OrderAddRequest() : this(default, new List<OrderItemAddRequest>()) {
 
         }
     }

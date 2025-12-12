@@ -5,6 +5,7 @@ namespace DataAccess.Entities
     public class Order
     {
         [BsonId]
+        [BsonRepresentation(MongoDB.Bson.BsonType.String)]
         public Guid _id { get; set; }
 
         [BsonRepresentation(MongoDB.Bson.BsonType.String)]

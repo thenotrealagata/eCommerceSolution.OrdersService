@@ -35,6 +35,8 @@ namespace DataAccess.Repositories
             order.OrderId = Guid.NewGuid();
             order._id = order.OrderId;
 
+            order.OrderDate = DateTime.Now;
+
             foreach (OrderItem orderItem in order.Items) {
                 orderItem._id = Guid.NewGuid();
             }

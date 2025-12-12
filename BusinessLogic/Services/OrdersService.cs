@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BusinessLogic.DTO;
+using BusinessLogic.HttpClients;
 using BusinessLogic.ServiceContracts;
 using DataAccess.Entities;
 using DataAccess.RepositoryContracts;
@@ -11,11 +12,13 @@ namespace BusinessLogic.Services
     {
         private readonly IMapper _mapper;
         private readonly IOrdersRepository _ordersRepository;
+        private readonly UsersMicroserviceClient _usersMicroserviceClient;
 
-        public OrdersService(IMapper mapper, IOrdersRepository ordersRepository)
+        public OrdersService(IMapper mapper, IOrdersRepository ordersRepository, UsersMicroserviceClient usersMicroserviceClient)
         {
             _mapper = mapper;
             _ordersRepository = ordersRepository;
+            _usersMicroserviceClient = usersMicroserviceClient;
         }
 
         public async Task<List<OrderResponse>> GetOrders()
@@ -47,7 +50,13 @@ namespace BusinessLogic.Services
 
         public async Task<OrderResponse?> AddOrder(OrderAddRequest orderAddRequest)
         {
-            // TODO connect to User via UsersService
+            Guid userId = orderAddRequest.UserId;
+            UserResponse? response = await _usersMicroserviceClient.GetUserById(userId);
+
+            if (response is null)
+            {
+                throw new ArgumentException("User ID is invalid!");
+            }
 
             Order orderInput = _mapper.Map<Order>(orderAddRequest);
 
@@ -71,7 +80,13 @@ namespace BusinessLogic.Services
 
         public async Task<OrderResponse?> UpdateOrder(OrderUpdateRequest orderUpdateRequest)
         {
-            // TODO connect to User via UsersService
+            Guid userId = orderUpdateRequest.UserId;
+            UserResponse? response = await _usersMicroserviceClient.GetUserById(userId);
+
+            if (response is null)
+            {
+                throw new ArgumentException("User ID is invalid!");
+            }
 
             Order orderInput = _mapper.Map<Order>(orderUpdateRequest);
 
